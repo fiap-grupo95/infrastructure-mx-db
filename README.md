@@ -55,3 +55,19 @@ terraform apply \
 - Final snapshot is skipped on destroy; set according to your policies.
 
 # database-mecanica-xpto
+
+## CI/CD (GitHub Actions)
+- Workflow file: `.github/workflows/terraform.yml`
+- Runs only on push to `main` (i.e., after PR merge).
+- Steps: `terraform fmt`, `validate`, `plan`, and automatic `apply` to production.
+- AWS access: configure `Secrets`:
+	- `AWS_ROLE_TO_ASSUME`: IAM role ARN trusted for GitHub OIDC (recommended).
+	- Or classic credentials: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (then remove `role-to-assume` in workflow).
+
+Example to tighten access via variables (Plan/Apply picks these up from defaults or overrides):
+
+```zsh
+terraform apply \
+	-var "allowed_cidrs=[\"YOUR.IP.ADDR.0/32\"]" \
+	-var "eks_security_group_id=sg-0123456789abcdef"
+```
