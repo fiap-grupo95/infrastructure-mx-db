@@ -25,7 +25,7 @@ variable "postgres_engine_version" {
 variable "initial_db_name" {
   description = "Initial database name"
   type        = string
-  default     = "dbmecanicaxpto"
+  default     = "db_mecanica_xpto"
 }
 
 variable "postgres_username" {
