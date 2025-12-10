@@ -14,7 +14,7 @@ permissions:
   id-token: write
 
 env:
-  TF_WORKING_DIR: INFRASTRUCTURE-MX-DB
+  TF_WORKING_DIR: .
 
 jobs:
   validate-plan:
