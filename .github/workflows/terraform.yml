@@ -13,7 +13,7 @@ permissions:
   id-token: write
 
 env:
-  TF_WORKING_DIR: infrastructure-mx-db
+  TF_WORKING_DIR: .
 
 jobs:
   validate-plan:
@@ -33,9 +33,10 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-session-name: terraform-ci
-        if: ${{ secrets.AWS_ROLE_TO_ASSUME != '' }}
+        
 
       - name: Terraform Format
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -75,8 +76,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           role-session-name: terraform-apply
 
       - name: Terraform Init

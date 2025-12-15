@@ -39,5 +39,5 @@ variable "postgres_password" {
   type        = string
   sensitive   = true
   # NOTE: The provided value U2VuaGExMjM= looks base64; using as-is per request.
-  default     = "U2VuaGExMjM="
+  default = "U2VuaGExMjM="
 }

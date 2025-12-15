@@ -49,11 +49,11 @@ resource "aws_security_group" "rds" {
   dynamic "ingress" {
     for_each = var.eks_security_group_id == "" ? [] : [var.eks_security_group_id]
     content {
-      description      = "Postgres from EKS SG"
-      from_port        = 5432
-      to_port          = 5432
-      protocol         = "tcp"
-      security_groups  = [ingress.value]
+      description     = "Postgres from EKS SG"
+      from_port       = 5432
+      to_port         = 5432
+      protocol        = "tcp"
+      security_groups = [ingress.value]
     }
   }
 
@@ -70,31 +70,31 @@ resource "aws_security_group" "rds" {
 }
 
 resource "aws_db_instance" "postgres" {
-  identifier                = "mecanica-xpto-db"
-  engine                    = "postgres"
-  engine_version            = var.postgres_engine_version
-  instance_class            = "db.t3.micro"
-  allocated_storage         = 20
-  storage_type              = "gp2"
-  db_subnet_group_name      = aws_db_subnet_group.rds.name
-  vpc_security_group_ids    = [aws_security_group.rds.id]
-  publicly_accessible       = true
-  port                      = 5432
+  identifier             = "mecanica-xpto-db"
+  engine                 = "postgres"
+  engine_version         = var.postgres_engine_version
+  instance_class         = "db.t3.micro"
+  allocated_storage      = 20
+  storage_type           = "gp2"
+  db_subnet_group_name   = aws_db_subnet_group.rds.name
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  publicly_accessible    = true
+  port                   = 5432
 
-  db_name                   = var.initial_db_name
-  username                  = var.postgres_username
-  password                  = var.postgres_password
+  db_name  = var.initial_db_name
+  username = var.postgres_username
+  password = var.postgres_password
 
-  backup_retention_period   = 0
-  deletion_protection       = false
-  skip_final_snapshot       = true
-  multi_az                  = false
+  backup_retention_period      = 0
+  deletion_protection          = false
+  skip_final_snapshot          = true
+  multi_az                     = false
   performance_insights_enabled = false
 
-  apply_immediately         = true
+  apply_immediately = true
 
   tags = {
-    Name = "mx-db-postgres"
+    Name    = "mx-db-postgres"
     Project = "mecanica-xpto"
   }
 }
