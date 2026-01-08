@@ -5,9 +5,6 @@ on:
     branches:
       - develop
       - main
-    paths:
-      - '**/*.tf'
-      - '.github/workflows/terraform.yml'
 
 permissions:
   contents: read
@@ -45,7 +42,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -input=false
+        run: terraform init
 
       - name: Terraform Validate
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -53,4 +50,4 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan -input=false -no-color
+        run: terraform plan
