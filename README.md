@@ -16,6 +16,11 @@ Este projeto provisiona uma instância **AWS RDS (Postgres) Free Tier** em `us-e
 - `variables.tf`: Inputs com padrões seguros
 - `outputs.tf`: Outputs de Endpoint, porta e usuário
 
+## Tecnologias
+
+- AWS RDS
+- Terraform
+
 ## Arquitetura
 
 - **Rede**: VPC padrão da AWS
@@ -37,11 +42,6 @@ Publicly Accessible"]
     eks_sg -- "TCP 5432 (opcional)" --> sg
     sg --> rds
 ```
-
-## Tecnologias
-
-- AWS RDS
-- Terraform
 
 ## Como provisionar
 
