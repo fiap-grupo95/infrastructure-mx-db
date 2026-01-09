@@ -53,12 +53,10 @@ jobs:
       - name: Terraform Import subnet group
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform import aws_db_subnet_group.rds rds-default-subnet-group
-        continue-on-error: true
         
       - name: Terraform Import parameter group
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform import aws_db_parameter_group.postgres mecanica-xpto-postgres-17-params
-        continue-on-error: true
 
       - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
