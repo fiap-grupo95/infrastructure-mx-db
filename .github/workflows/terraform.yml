@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - import-terraform-state
     paths:
       - '**/*.tf'
       - '.github/workflows/terraform.yml'
