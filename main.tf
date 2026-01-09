@@ -32,6 +32,17 @@ resource "aws_db_subnet_group" "rds" {
   }
 }
 
+# Parameter group for Postgres with SSL not forced (rds.force_ssl = 0)
+resource "aws_db_parameter_group" "postgres" {
+  name   = "mecanica-xpto-postgres-17-params"
+  family = "postgres17"
+
+  parameter {
+    name  = "rds.force_ssl"
+    value = "0"
+  }
+}
+
 # Security Group allowing Postgres access from configured CIDRs and EKS SG
 resource "aws_security_group" "rds" {
   name        = "rds-postgres-sg"
@@ -73,6 +84,7 @@ resource "aws_db_instance" "postgres" {
   identifier             = "mecanica-xpto-db"
   engine                 = "postgres"
   engine_version         = var.postgres_engine_version
+  parameter_group_name   = aws_db_parameter_group.postgres.name
   instance_class         = "db.t3.micro"
   allocated_storage      = 20
   storage_type           = "gp2"

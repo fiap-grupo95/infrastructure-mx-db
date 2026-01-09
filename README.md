@@ -1,73 +1,102 @@
-# AWS RDS Postgres (Free Tier) - Terraform
+# Infraestrutura Database Mecanica Xpto
 
-Provision a simple AWS RDS Postgres instance in `us-east-1` (North Virginia) with:
-- Instance class `db.t3.micro`
-- Storage `gp2` 20GB, no autoscaling
-- Public accessibility enabled for easy DBeaver access
-- Security group allowing `5432` from `allowed_cidrs` and optionally from an EKS SG
-- Performance Insights disabled
-- Initial database `db-mecanica-xpto`
-- Username `admin_user`, password set from variable (default provided)
+## Descrição
 
-## Files
-- `main.tf`: Provider, networking, security group, and RDS instance
-- `variables.tf`: Inputs with safe defaults
-- `outputs.tf`: Endpoint, port, username outputs
+Este projeto provisiona uma instância **AWS RDS (Postgres) Free Tier** em `us-east-1` (Norte da Virgínia) com as seguintes características:
+- Classe de instância `db.t3.micro`
+- Armazenamento `gp2` de 20GB, sem autoscaling
+- Acessibilidade pública habilitada para fácil acesso via DBeaver
+- Security group permitindo `5432` de `allowed_cidrs` e opcionalmente de um SG do EKS
+- Performance Insights desabilitado
+- Banco de dados inicial `db-mecanica-xpto`
+- Usuário `admin_user`, senha definida por variável (padrão fornecido)
 
-## Quick Start
+### Arquivos
+- `main.tf`: Provider, networking, security group e instância RDS
+- `variables.tf`: Inputs com padrões seguros
+- `outputs.tf`: Outputs de Endpoint, porta e usuário
 
-1. Ensure AWS credentials are configured (e.g., `AWS_PROFILE`, `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`).
-2. Optionally set your IP in `allowed_cidrs` to tighten access.
+## Tecnologias
 
-```zsh
-cd infrastructure-mx-db
-terraform init
-terraform plan -out tfplan
-terraform apply tfplan
+- AWS RDS
+- Terraform
+
+## Arquitetura
+
+- **Rede**: VPC padrão da AWS
+- **Security Group**: Permite TCP 5432 de `allowed_cidrs` e opcionalmente de `eks_security_group_id`
+- **RDS**: Postgres 17.6, db.t3.micro, 20GB gp2, público acessível
+- **Outputs**: Endpoint, porta e usuário
+
+```mermaid
+flowchart TD
+    allowed_cidrs["allowed_cidrs"]
+    eks_sg["eks_security_group_id (opcional)"]
+    sg["Security Group"]
+    rds["AWS RDS Postgres
+db.t3.micro
+20GB gp2
+Publicly Accessible"]
+
+    allowed_cidrs -- "TCP 5432" --> sg
+    eks_sg -- "TCP 5432 (opcional)" --> sg
+    sg --> rds
 ```
 
-## Variables
-- `aws_region`: defaults to `us-east-1`
-- `allowed_cidrs`: list of CIDRs allowed to access Postgres (default `0.0.0.0/0` for simplicity)
-- `eks_security_group_id`: optional SG id from your EKS cluster to allow DB access
-- `postgres_engine_version`: defaults to `15.5`
-- `initial_db_name`: defaults to `db-mecanica-xpto`
-- `postgres_username`: defaults to `admin_user`
-- `postgres_password`: default set to `U2VuaGExMjM=` (as provided)
+## Como provisionar
 
-You can override via CLI:
 
-```zsh
+1. Garanta que as credenciais da AWS estejam configuradas (ex: `AWS_PROFILE`, `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`).
+```bash
+aws configure
+```
+2. Navegue até o diretório do projeto e inicialize o Terraform:
+```bash
+cd infrastructure-mx-db
+terraform init
+```
+3. Planeje e aplique as mudanças:
+```bash
+terraform plan
+terraform apply
+```
+
+## Variáveis
+- `aws_region`: padrão `us-east-1`
+- `allowed_cidrs`: lista de CIDRs permitidos para acessar o Postgres (padrão `0.0.0.0/0` para simplicidade)
+- `eks_security_group_id`: id opcional do SG do seu cluster EKS para permitir acesso ao DB
+- `postgres_engine_version`: padrão `17.6`
+- `initial_db_name`: padrão `db-mecanica-xpto`
+- `postgres_username`: padrão `admin_user`
+- `postgres_password`: padrão definido como `U2VuaGExMjM=` (conforme fornecido)
+
+Você pode sobrescrever via CLI:
+
+```bash
 terraform apply \
-	-var "allowed_cidrs=[\"YOUR.IP.ADDR.0/24\"]" \
+	-var "allowed_cidrs=[\"SEU.IP.ADDR.0/24\"]" \
 	-var "eks_security_group_id=sg-0123456789abcdef"
 ```
 
-## Connect via DBeaver
-- Host: output `rds_endpoint`
-- Port: `5432`
-- Database: `dbmecanicaxpto`
-- User: `admin_user`
-- Password: `U2VuaGExMjM=` (or your override)
-
-## Notes
-- Publicly accessible is enabled for simplicity; consider restricting `allowed_cidrs`.
-- Final snapshot is skipped on destroy; set according to your policies.
-
-# database-mecanica-xpto
+## Conectar via DBeaver
+- Host: `mecanica-xpto-db.c6fuay2iwxil.us-east-1.rds.amazonaws.com`
+- Porta: `5432`
+- Banco de Dados: `db_mecanica_xpto`
+- Usuário: `admin_user`
+- Senha: `U2VuaGExMjM=`
 
 ## CI/CD (GitHub Actions)
-- Workflow file: `.github/workflows/terraform.yml`
-- Runs only on push to `main` (i.e., after PR merge).
-- Steps: `terraform fmt`, `validate`, `plan`, and automatic `apply` to production.
-- AWS access: configure `Secrets`:
-	- `AWS_ROLE_TO_ASSUME`: IAM role ARN trusted for GitHub OIDC (recommended).
-	- Or classic credentials: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (then remove `role-to-assume` in workflow).
+- Arquivo de workflow: `.github/workflows/terraform.yml`
+- Executa apenas no push para a `main` (i.e., após merge de PR).
+- Passos: `terraform fmt`, `validate`, `plan` e `apply` automático para produção.
+- Acesso AWS: configure `Secrets`:
+	- `AWS_ROLE_TO_ASSUME`: ARN da role IAM confiável para GitHub OIDC (recomendado).
+	- Ou credenciais clássicas: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` (remova `role-to-assume` no workflow nesse caso).
 
-Example to tighten access via variables (Plan/Apply picks these up from defaults or overrides):
+Exemplo para restringir acesso via variáveis (Plan/Apply pega estes dos padrões ou sobrescritas):
 
-```zsh
+```bash
 terraform apply \
-	-var "allowed_cidrs=[\"YOUR.IP.ADDR.0/32\"]" \
+	-var "allowed_cidrs=[\"SEU.IP.ADDR.0/32\"]" \
 	-var "eks_security_group_id=sg-0123456789abcdef"
 ```
