@@ -93,6 +93,15 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform init -input=false
 
+    
+      - name: Terraform Import subnet group
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform import aws_db_subnet_group.rds rds-default-subnet-group
+        
+      - name: Terraform Import parameter group
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform import aws_db_parameter_group.postgres mecanica-xpto-postgres-17-params
+
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform apply -auto-approve -input=false
